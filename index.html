@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Weather App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .weather-icon-glow {
+            filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.5));
+        }
+    </style>
+</head>
+<body class="text-slate-200 antialiased selection:bg-sky-500/30">
+
+    <div class="max-w-5xl mx-auto px-4 py-8 md:py-12">
+        
+        <header class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-3 py-5">
+                    <span class=" p-2 rounded-xl italic shadow-lg shadow-sky-500/10 text-white"><img class="w-40 rounded-3xl " src="images/Gemini_Generated_Image_353xrr353xrr353x-removebg-preview.png" alt=""></span>
+                    
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Global ob-havo monitoringi</p>
+            </div>
+
+            <div class="relative w-full max-w-md group">
+                <input type="text" id="cityInput" placeholder="Shahar nomi..." 
+                    class="w-full bg-slate-800/50 border border-slate-700 py-4 pl-12 pr-28 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all placeholder:text-slate-500 group-hover:border-slate-600">
+                <i class="fa-solid fa-location-dot absolute left-4 top-1/2 -translate-y-1/2 text-sky-500"></i>
+                <button onclick="getWeather()" class="absolute right-2 top-2 bottom-2 bg-sky-500 hover:bg-sky-400 text-white px-5 rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-sky-500/20">
+                    Qidirish
+                </button>
+            </div>
+        </header>
+
+        <main id="mainContainer" class="hidden animate-in fade-in duration-700">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <div class="lg:col-span-8 glass-panel rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -m-12 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl"></div>
+                    
+                    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h2 id="cityName" class="text-5xl font-extrabold text-white mb-2">---</h2>
+                            <p id="currentDate" class="text-sky-400 font-medium tracking-wide"></p>
+                        </div>
+                        <div class="mt-4 md:mt-0 text-center">
+                            <img id="mainIcon" src="" class="w-32 h-32 weather-icon-glow mx-auto" alt="weather">
+                            <p id="description" class="text-xl capitalize text-slate-300 font-light"></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex items-baseline gap-2">
+                        <span id="mainTemp" class="text-8xl md:text-9xl font-black tracking-tighter text-white">0°</span>
+                        <div class="text-slate-400 pb-4">
+                            <p class="text-lg">His etish: <span id="feelsLike" class="text-white font-bold">0°</span></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12">
+                        <div class="bg-slate-800/40 p-5 rounded-[1.5rem] border border-white/5 flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-sky-500/10 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-droplet text-sky-400"></i>
+                            </div>
+                            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Namlik</span>
+                            <p id="humidity" class="text-xl font-bold text-white mt-1">0%</p>
+                        </div>
+                        <div class="bg-slate-800/40 p-5 rounded-[1.5rem] border border-white/5 flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-wind text-emerald-400"></i>
+                            </div>
+                            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Shamol</span>
+                            <p id="windSpeed" class="text-xl font-bold text-white mt-1">0 m/s</p>
+                        </div>
+                        <div class="bg-slate-800/40 p-5 rounded-[1.5rem] border border-white/5 flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-gauge-high text-amber-400"></i>
+                            </div>
+                            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Bosim</span>
+                            <p id="pressure" class="text-xl font-bold text-white mt-1">0 hPa</p>
+                        </div>
+                        <div class="bg-slate-800/40 p-5 rounded-[1.5rem] border border-white/5 flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-eye text-purple-400"></i>
+                            </div>
+                            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Ko'rinish</span>
+                            <p id="visibility" class="text-xl font-bold text-white mt-1">0 km</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 glass-panel rounded-[2.5rem] p-8">
+                    <h3 class="text-xl font-bold text-white mb-8 flex items-center gap-3">
+                        <i class="fa-regular fa-calendar-days text-sky-500"></i>
+                        5 Kunlik Bashorat
+                    </h3>
+                    <div id="forecastList" class="space-y-6">
+                        </div>
+                </div>
+
+            </div>
+        </main>
+
+        <div id="loader" class="hidden flex flex-col items-center justify-center py-24">
+            <div class="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-6 text-slate-400 font-medium">Osmon tekshirilmoqda...</p>
+        </div>
+
+        <div id="errorBox" class="hidden glass-panel rounded-[2rem] p-12 text-center max-w-md mx-auto">
+            <div class="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-triangle-exclamation text-3xl text-red-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">Shahar topilmadi</h2>
+            <p class="text-slate-400 mb-8">Iltimos, nomni to'g'ri kiritganingizni tekshirib ko'ring.</p>
+            <button onclick="location.reload()" class="text-sky-400 font-bold hover:underline">Qayta urinish</button>
+        </div>
+
+    </div>
+
+    <script>
+        const API_KEY = '1fcc578508ac5312de570a663ff8cc5e';
+
+        document.getElementById('cityInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') getWeather();
+        });
+
+        async function getWeather() {
+            const city = document.getElementById('cityInput').value.trim();
+            if (!city) return;
+
+            const main = document.getElementById('mainContainer');
+            const loader = document.getElementById('loader');
+            const error = document.getElementById('errorBox');
+
+            main.classList.add('hidden');
+            error.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${API_KEY}&lang=uz`);
+                const data = await res.json();
+
+                if (data.cod !== "200") throw new Error();
+
+                updateUI(data);
+                loader.classList.add('hidden');
+                main.classList.remove('hidden');
+            } catch (err) {
+                loader.classList.add('hidden');
+                error.classList.remove('hidden');
+            }
+        }
+
+        function updateUI(data) {
+            const current = data.list[0];
+            
+            document.getElementById('cityName').innerText = `${data.city.name}, ${data.city.country}`;
+            document.getElementById('mainTemp').innerText = Math.round(current.main.temp) + '°';
+            document.getElementById('feelsLike').innerText = Math.round(current.main.feels_like) + '°';
+            document.getElementById('description').innerText = current.weather[0].description;
+            document.getElementById('humidity').innerText = current.main.humidity + '%';
+            document.getElementById('windSpeed').innerText = current.wind.speed + ' m/s';
+            document.getElementById('pressure').innerText = current.main.pressure + ' hPa';
+            document.getElementById('visibility').innerText = (current.visibility / 1000).toFixed(1) + ' km';
+            document.getElementById('mainIcon').src = `https://openweathermap.org/img/wn/${current.weather[0].icon}@4x.png`;
+            
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            document.getElementById('currentDate').innerText = new Date().toLocaleDateString('uz-UZ', options);
+
+            const forecastList = document.getElementById('forecastList');
+            forecastList.innerHTML = '';
+            
+            // Har 24 soatlik ma'lumotni filtrlash
+            for (let i = 7; i < data.list.length; i += 8) {
+                const day = data.list[i];
+                const dayName = new Date(day.dt_txt).toLocaleDateString('uz', { weekday: 'short' });
+                
+                forecastList.innerHTML += `
+                    <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-colors group">
+                        <span class="w-12 font-bold text-slate-400 group-hover:text-sky-400 transition-colors uppercase">${dayName}</span>
+                        <div class="flex items-center gap-3 flex-1 justify-center">
+                            <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" class="w-12 h-12">
+                            <span class="text-sm text-slate-500 hidden sm:block capitalize">${day.weather[0].description}</span>
+                        </div>
+                        <span class="w-12 text-right font-extrabold text-white text-lg">${Math.round(day.main.temp)}°</span>
+                    </div>
+                `;
+            }
+        }
+
+     
+    
+    </script>
+</body>
+</html>
